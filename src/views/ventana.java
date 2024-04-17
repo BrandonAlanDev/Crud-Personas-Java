@@ -9,6 +9,8 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.*;
+import javax.swing.text.*;
 
 import models.Persona;
 
@@ -47,9 +49,13 @@ public class ventana extends JFrame implements ActionListener,ListSelectionListe
 	
 	@Override public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==btnAgregar){
-			if(!(nombreTextField.equals(null) && apellidoTextField.equals(null) && edadTextField.equals(null))){
-				System.out.println("AGREGAR");
-			}else { System.out.println("CAMPOS VACIOS"); }
+			if(nombreTextField.getText().isEmpty() || apellidoTextField.getText().isEmpty() || edadTextField.getText().isEmpty()){
+				System.out.println("CAMPOS VACIOS");
+			}else { 
+				System.out.println("Agregar");
+				Persona p = new Persona(nombreTextField.getText(), apellidoTextField.getText(), Integer.valueOf(edadTextField.getText()));
+				modelo.add(modelo.size(),p);
+			}
 		}
 		if(e.getSource()==btnEliminar){
 			int op=list.getSelectedIndex();
@@ -61,11 +67,27 @@ public class ventana extends JFrame implements ActionListener,ListSelectionListe
 	    	}
 		}
 	}
-	
+	@Override
+    public void valueChanged(ListSelectionEvent e) {
+		if (!e.getValueIsAdjusting()) { // Para evitar que se dispare el evento dos veces
+        	int op=list.getSelectedIndex();
+    	    if(op==-1) {
+    	    	lblNombreBuscado.setText("Mi Nombre");
+    	    	lblApellidoBuscado.setText("Mi Apellido");
+    	    	lblEdadBuscada.setText("Mi Edad");
+    	    } else {
+    	    	Persona p = modelo.elementAt(op);
+    	    	lblNombreBuscado.setText(p.getNombre());
+    	    	lblApellidoBuscado.setText(p.getApellido());
+    	    	lblEdadBuscada.setText(String.valueOf(p.getEdad()));
+    	    }
+        }
+    }
 	/**
 	 * Create the frame.
 	 */
 	public ventana() {
+		setTitle("CRUD PERSONAS");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 1024, 600);
         contentPane = new JPanel();
@@ -108,6 +130,23 @@ public class ventana extends JFrame implements ActionListener,ListSelectionListe
         menu.add(nombre);
         nombreTextField = new JTextField();
         nombreTextField.setPreferredSize(new Dimension(150, 25));
+        ((AbstractDocument) nombreTextField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string == null) return;
+                if (string.matches("[a-zA-ZñÑáéíóúÁÉÍÓÚ']*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text == null) return;
+                if (text.matches("[a-zA-ZñÑáéíóúÁÉÍÓÚ']*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
         btnAgregar = new JButton();
         btnAgregar.setPreferredSize(new Dimension(150, 25));
         btnAgregar.setText("Agregar");
@@ -121,6 +160,23 @@ public class ventana extends JFrame implements ActionListener,ListSelectionListe
         menu.add(apellido);
         apellidoTextField = new JTextField();
         apellidoTextField.setPreferredSize(new Dimension(150, 25));
+        ((AbstractDocument) apellidoTextField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string == null) return;
+                if (string.matches("[a-zA-ZñÑáéíóúÁÉÍÓÚ']*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text == null) return;
+                if (text.matches("[a-zA-ZñÑáéíóúÁÉÍÓÚ']*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
         btnEliminar = new JButton();
         btnEliminar.setPreferredSize(new Dimension(150, 25));
         btnEliminar.setText("Eliminar");
@@ -134,6 +190,23 @@ public class ventana extends JFrame implements ActionListener,ListSelectionListe
         menu.add(edad);
         edadTextField = new JTextField();
         edadTextField.setPreferredSize(new Dimension(150, 25));
+        ((AbstractDocument) edadTextField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string == null) return;
+                if (string.matches("[0-9]*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text == null) return;
+                if (text.matches("[0-9]*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
         edad.add(edadTextField);
 
         menu.add(Box.createVerticalGlue());
@@ -175,7 +248,27 @@ public class ventana extends JFrame implements ActionListener,ListSelectionListe
         listado.setLayout(new BorderLayout(0, 0));
 
         list = new JList(modelo);
+        list.setFont(new Font("Tahoma", Font.PLAIN, 10));
+        list.setForeground(new Color(249, 249, 249));
         list.setBackground(new Color(43, 45, 70));
+        list.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) { // Para evitar que se dispare el evento dos veces
+                	int op=list.getSelectedIndex();
+            	    if(op==-1) {
+            	    	lblNombreBuscado.setText("Mi Nombre");
+            	    	lblApellidoBuscado.setText("Mi Apellido");
+            	    	lblEdadBuscada.setText("Mi Edad");
+            	    } else {
+            	    	Persona p = modelo.elementAt(op);
+            	    	lblNombreBuscado.setText(p.getNombre());
+            	    	lblApellidoBuscado.setText(p.getApellido());
+            	    	lblEdadBuscada.setText(String.valueOf(p.getEdad()));
+            	    }
+                }
+            }
+        });
         listado.add(list, BorderLayout.CENTER);
     }
 
@@ -189,20 +282,5 @@ public class ventana extends JFrame implements ActionListener,ListSelectionListe
         panel.add(label);
         return panel;
     }
-    @Override
-    public void valueChanged(ListSelectionEvent e) {
-    	int op=list.getSelectedIndex();
-    	if(op==-1) {
-    		lblNombreBuscado.setText(". . .");
-    		lblApellidoBuscado.setText(". . .");
-    		lblEdadBuscada.setText(". . .");
-    	} else {
-    		Persona p = modelo.getElementAt(op);
-    		lblNombreBuscado.setText(p.getNombre());
-    		lblApellidoBuscado.setText(p.getApellido());
-    		lblEdadBuscada.setText(String.valueOf(p.getEdad()));
-    	}
-    }
-
 
 }

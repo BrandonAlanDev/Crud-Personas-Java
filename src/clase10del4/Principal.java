@@ -1,13 +1,16 @@
 package clase10del4;
 
+import javax.swing.SwingUtilities;
+
 import views.ventana;
 
 public class Principal {
 
 	public static void main(String[] args) {
 		try {
-			ventana frame = new ventana();
-			frame.setVisible(true);
+			SwingUtilities.invokeLater(() -> {
+	            new ventana().setVisible(true);
+	        });
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
